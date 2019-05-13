@@ -8,11 +8,7 @@ import numpy as np
 from collections import Counter
 np.random.seed(1)
 from tensorflow import set_random_seed
-# from imblearn.datasets import make_imbalance
-# from imblearn.keras import BalancedBatchGenerator
-# from imblearn.under_sampling import NearMiss
 from keras.callbacks import LearningRateScheduler
-
 set_random_seed(1)
 from datetime import datetime
 import argparse
@@ -28,8 +24,6 @@ import pandas as pd
 from modules import *
 from utils import *
 from AudioDataGenerator import *
-
-global_epoch_counter = 1
 
 
 if __name__ == '__main__':
