@@ -29,8 +29,6 @@ from modules import *
 from utils import *
 from AudioDataGenerator import *
 
-from sklearn.preprocessing import StandardScaler
-
 global_epoch_counter = 1
 
 
