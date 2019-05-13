@@ -17,7 +17,6 @@ set_random_seed(1)
 from datetime import datetime
 import argparse
 import os
-import tables
 from keras.utils import to_categorical, plot_model
 from keras.layers import Flatten, Dense
 from keras.models import Model
