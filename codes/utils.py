@@ -6,7 +6,6 @@ from tensorflow import set_random_seed
 
 set_random_seed(1)
 import os
-import re
 from keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger, Callback
 import pandas as pd
 from sklearn.metrics import confusion_matrix
@@ -90,12 +89,11 @@ def train_test_split(fold_idx):
     ]
     subject_files = []
     for f in files:
-        if fold_idx < 10:
-            pattern = re.compile("[a-zA-Z0-9]*0{}[1-9]E0\.npz$".format(fold_idx))
-        else:
-            pattern = re.compile("[a-zA-Z0-9]*{}[1-9]E0\.npz$".format(fold_idx))
-        if pattern.match(f):
+        if fold_idx < 10 and f.startswith('SC40{}'.format(fold_idx)):
             subject_files.append(f)
+        elif fold_idx > 9 and f.startswith('SC4{}'.format(fold_idx)):
+            subject_files.append(f)
+    assert subject_files != []
     train_files = list(set(files) - set(subject_files))
     train_files.sort()
     subject_files.sort()
@@ -103,7 +101,7 @@ def train_test_split(fold_idx):
 
 
 def patientSplitter(data, fold_idx):
-    tr, te = train_test_split(fold_idx)
+    tr, te = train_test_split(int(fold_idx))
     print('train: ', tr)
     print('test: ', te)
     trainMask = np.asarray([each in tr for each in data.iloc[:, 3002]])

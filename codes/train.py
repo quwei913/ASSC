@@ -1,7 +1,7 @@
 from __future__ import print_function, absolute_import, division
 import glob
 from collections import Counter
-
+import numpy as np
 np.random.seed(1)
 from tensorflow import set_random_seed
 
@@ -23,7 +23,7 @@ from AudioDataGenerator import *
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument("fold",
+    parser.add_argument("--fold_idx", type=int,
                         help="data csvfile to use")
     parser.add_argument("--seed", type=int,
                         help="Random seed")
@@ -41,8 +41,8 @@ if __name__ == '__main__':
                         help="Add comments to the log files")
 
     args = parser.parse_args()
-    print("%s selected" % (args.fold))
-    fold_idx = args.fold
+    print("%s selected" % (args.fold_idx))
+    fold_idx = args.fold_idx
 
     if args.seed:  # if random seed is specified
         print("Random seed specified as %d" % (args.seed))
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     model_dir = os.path.join(os.getcwd(), '..', 'models').replace('\\', '/')
     fold_dir = os.path.join(os.getcwd(), '..', 'data').replace('\\', '/')
     log_dir = os.path.join(os.getcwd(), '..', 'logs').replace('\\', '/')
-    log_name = fold_idx + '_' + str(datetime.now()).replace(':', '-')
+    log_name = 'log_' + str(fold_idx) + '_' + str(datetime.now()).replace(':', '-')
 
     if not os.path.exists(os.path.join(model_dir, log_name).replace('\\', '/')):
         new_dir = (os.path.join(model_dir, log_name).replace('\\', '/'))
