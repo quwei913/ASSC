@@ -7,4 +7,6 @@ models/*
 logs/*
 data/*
 !data/dummy.csv
+!data/*.py
+*.*~
 codes/__pycache__/*
