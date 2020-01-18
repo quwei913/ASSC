@@ -116,19 +116,6 @@ def patientSplitter(data, fold_idx):
     return X_train, X_test, Y_train, Y_test, pat_train, pat_test
 
 
-def results_log(results_file, log_dir, log_name, params):
-    df = pd.read_csv(results_file)
-    df1 = pd.read_csv(os.path.join(log_dir, log_name, 'training.csv').replace('\\', '/'))
-
-    new_entry = params
-    new_entry.pop('class_weight')
-    new_entry.pop('lr')
-    a = df1.head()
-    a = a.join(pd.DataFrame(params, index=[0]))
-    df2 = pd.concat([df, a], axis=0)
-    df2.to_csv(results_file, index=False)
-    print("saving results to csv")
-
 
 class log_metrics(Callback):
     def __init__(self, valX, valY, patID, patlogDirectory, global_epoch_counter, **kwargs):

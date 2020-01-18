@@ -87,23 +87,22 @@ if __name__ == '__main__':
     else:
         comment = None
 
-    model_dir = os.path.join(os.getcwd(), '..', 'models').replace('\\', '/')
-    fold_dir = os.path.join(os.getcwd(), '..', 'data').replace('\\', '/')
-    log_dir = os.path.join(os.getcwd(), '..', 'logs').replace('\\', '/')
-    log_name = 'log_' + str(fold_idx) + '_' + str(datetime.now()).replace(':', '-')
+    model_dir = os.path.join(os.getcwd(), '..', 'models')
+    fold_dir = os.path.join(os.getcwd(), '..', 'data')
+    log_dir = os.path.join(os.getcwd(), '..', 'logs')
+    log_name = 'fold_' + str(fold_idx)
 
-    if not os.path.exists(os.path.join(model_dir, log_name).replace('\\', '/')):
-        new_dir = (os.path.join(model_dir, log_name).replace('\\', '/'))
+    if not os.path.exists(os.path.join(model_dir, log_name)):
+        new_dir = (os.path.join(model_dir, log_name))
         print(new_dir)
         os.makedirs(new_dir)
 
-    if not os.path.exists(os.path.join(log_dir, log_name).replace('\\', '/')):
-        new_dir = os.path.join(log_dir, log_name).replace('\\', '/')
+    if not os.path.exists(os.path.join(log_dir, log_name)):
+        new_dir = os.path.join(log_dir, log_name)
         print(new_dir)
         os.makedirs(new_dir)
 
-    checkpoint_name = os.path.join(model_dir, log_name, 'weights.{epoch:04d}-{val_acc:.4f}.hdf5').replace('\\', '/')
-    results_file = os.path.join(os.getcwd(), '..', 'results.csv').replace('\\', '/')
+    checkpoint_name = os.path.join(model_dir, log_name, 'weights.{epoch:04d}-{val_acc:.4f}.hdf5')
 
     params = {
 
@@ -163,7 +162,7 @@ if __name__ == '__main__':
     if load_path:
         model.load_weights(filepath=load_path, by_name=False)
     model_json = model.to_json()
-    with open(os.path.join(model_dir, log_name, 'model.json').replace('\\', '/'), "w") as json_file:
+    with open(os.path.join(model_dir, log_name, 'model.json'), "w") as json_file:
         json_file.write(model_json)
 
     model.compile(optimizer=opt(lr=params['lr'], epsilon=None, decay=params['lr_decay']),
@@ -208,8 +207,3 @@ if __name__ == '__main__':
             class_weight=params['class_weight']
             )
 
-        results_log(results_file=results_file, log_dir=log_dir, log_name=log_name, params=params)
-
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt")
-        results_log(results_file=results_file, log_dir=log_dir, log_name=log_name, params=params)
