@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import, division
+import glob
 import tensorflow as tf
 # from keras.backend.tensorflow_backend import set_session
 # config = tf.ConfigProto()
@@ -144,9 +145,12 @@ if __name__ == '__main__':
 
 
     current_learning_rate= params['lr']
-
-    df = pd.read_csv(os.path.join(fold_dir,foldname).replace('\\', '/'), header=None)
-    trainX, valX, trainY, valY, pat_train, pat_val = patientSplitter(df,task='RS',stages=params['num_classes'])
+    inf = glob.glob(os.path.join(fold_dir, 'SC*.csv'))
+    df = pd.DataFrame()
+    for f in inf:
+        df = pd.concat([df, pd.read_csv(f)])
+    trainX, valX, trainY, valY, pat_train, pat_val = patientSplitter(df)
+    print(trainX.shape, valX.shape, trainY.shape, valY.shape)
     del df
 
     print("Data loaded")

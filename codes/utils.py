@@ -51,17 +51,19 @@ def patientSplitter(data,task='SC',stages=5):
 	
     trainFile = os.path.join('..','benchmark',task+'_train.csv').replace('\\', '/')
     testFile = os.path.join('..','benchmark',task+'_test.csv').replace('\\', '/')
-    df = pd.read_csv(trainFile,header=None)
-    trainMask = np.asarray([each in df[0].values for each in data[3002]])
-    df = pd.read_csv(testFile,header=None)
-    testMask = np.asarray([each in df[0].values for each in data[3002]])
+    df = pd.read_csv(trainFile)
+    print(type(data))
+    print(type(data.iloc[: 3002]))
+    trainMask = np.asarray([each in df.iloc[:, 0].values for each in data.iloc[:, 3002]])
+    df = pd.read_csv(testFile)
+    testMask = np.asarray([each in df.iloc[:, 0].values for each in data.iloc[:, 3002]])
 	
     X_train = data[trainMask].values[:,:3000]
     X_test= data[testMask].values[:,:3000]
-    Y_train= data[3000][trainMask].values
-    Y_test= data[3000][testMask].values
-    pat_train=[int(each[2:5]) for each in data[3002][trainMask].values]
-    pat_test= [int(each[2:5]) for each in data[3002][testMask].values]
+    Y_train= data.iloc[:, 3000][trainMask].values
+    Y_test= data.iloc[:, 3000][testMask].values
+    pat_train=[int(each[2:5]) for each in data.iloc[:, 3002][trainMask].values]
+    pat_test= [int(each[2:5]) for each in data.iloc[:, 3002][testMask].values]
     return X_train,X_test,Y_train,Y_test,pat_train,pat_test
 
 def results_log(results_file, log_dir, log_name, params):
