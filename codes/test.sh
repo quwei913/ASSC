@@ -1,6 +1,4 @@
 #!/bin/bash
-#for i in $(eval echo {0..19})
-for i in $(eval echo {0..0})
-do
-        CUDA_VISIBLE_DEVICES=3 python train.py --fold_idx $i --epochs 1 --batch_size 64
-done
+set -x
+./batch_train.sh 0 9 1 > test_9.out &
+./batch_train.sh 10 19 3 > test_19.out &

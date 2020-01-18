@@ -4,16 +4,13 @@ from collections import Counter
 import numpy as np
 np.random.seed(1)
 from tensorflow import set_random_seed
-
+from sklearn.metrics import confusion_matrix, f1_score, cohen_kappa_score
 set_random_seed(1)
-from datetime import datetime
 import argparse
 import os
 from keras.utils import to_categorical, plot_model
 from keras.layers import Flatten, Dense
 from keras.models import Model
-from keras.optimizers import Adamax as opt
-from keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger
 import pandas as pd
 
 from modules import *
@@ -27,8 +24,6 @@ if __name__ == '__main__':
                         help="data csvfile to use")
     parser.add_argument("--seed", type=int,
                         help="Random seed")
-    parser.add_argument("--loadmodel",
-                        help="load previous model checkpoint for retraining (Enter absolute path)")
     parser.add_argument("--epochs", type=int,
                         help="Number of epochs for training")
     parser.add_argument("--batch_size", type=int,
@@ -50,18 +45,6 @@ if __name__ == '__main__':
     else:
         random_seed = 1
     num_class = 5
-
-    if args.loadmodel:  # If a previously trained model is loaded for retraining
-        load_path = args.loadmodel  #### path to model to be loaded
-
-        idx = load_path.find("weights")
-        initial_epoch = int(load_path[idx + 8:idx + 8 + 4])
-
-        print("%s model loaded\nInitial epoch is %d" % (args.loadmodel, initial_epoch))
-    else:
-        print("no model specified, using initializer to initialize weights")
-        initial_epoch = 0
-        load_path = False
 
     if args.epochs:  # if number of training epochs is specified
         print("Training for %d epochs" % (args.epochs))
@@ -92,18 +75,9 @@ if __name__ == '__main__':
     log_dir = os.path.join(os.getcwd(), '..', 'logs')
     log_name = 'fold_' + str(fold_idx)
 
-    if not os.path.exists(os.path.join(model_dir, log_name)):
-        new_dir = (os.path.join(model_dir, log_name))
-        print(new_dir)
-        os.makedirs(new_dir)
-
-    if not os.path.exists(os.path.join(log_dir, log_name)):
-        new_dir = os.path.join(log_dir, log_name)
-        print(new_dir)
-        os.makedirs(new_dir)
-
     checkpoint_name = os.path.join(model_dir, log_name, 'weights.hdf5')
 
+    load_path = checkpoint_name
     params = {
 
         'num_classes': num_class,
@@ -113,7 +87,7 @@ if __name__ == '__main__':
         'random_seed': random_seed,
         'load_path': load_path,
         'shuffle': True,
-        'initial_epoch': initial_epoch,
+        'initial_epoch': 200,
         'eeg_length': 3000,
         'kernel_size': 16,
         'bias': True,
@@ -158,52 +132,21 @@ if __name__ == '__main__':
               kernel_constraint=max_norm(params['maxnorm']), use_bias=True)(x)
 
     model = Model(top_model.input, x)
-    model.summary()
-    if load_path:
-        model.load_weights(filepath=load_path, by_name=False)
-    model_json = model.to_json()
-    with open(os.path.join(model_dir, log_name, 'model.json'), "w") as json_file:
-        json_file.write(model_json)
-
-    model.compile(optimizer=opt(lr=params['lr'], epsilon=None, decay=params['lr_decay']),
-                  loss='categorical_crossentropy', metrics=['accuracy'])
-
-    ####### Callbacks #######
-
-    modelcheckpnt = ModelCheckpoint(filepath=checkpoint_name,
-                                    monitor='val_acc', save_best_only=True, mode='max')
-
-    tensdir = log_dir + "/" + log_name + "/"
-    tensbd = TensorBoard(log_dir=tensdir, batch_size=batch_size, write_grads=True, )
-    patlogDirectory = log_dir + '/' + log_name + '/'
-    trainingCSVdirectory = log_dir + '/' + log_name + '/' + 'training.csv'
-    csv_logger = CSVLogger(trainingCSVdirectory)
-
-    ####### Training #########
-
-    try:
-
-        datagen = AudioDataGenerator(
-            # shift=.1,
-            roll_range=.15,
-            samplewise_center=True,
-            samplewise_std_normalization=True,
+    model.load_weights(filepath=load_path, by_name=False)
+    y_pred = model.predict(valX)
+    y_pred = np.argmax(y_pred, axis=1)
+    y_true = np.argmax(valY, axis=1)
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    n_examples = len(y_true)
+    cm = confusion_matrix(y_true, y_pred)
+    acc = np.mean(y_true == y_pred)
+    mf1 = f1_score(y_true, y_pred, average="macro")
+    ck = cohen_kappa_score(y_true, y_pred)
+    print(
+        "n={}, acc={:.3f}, f1={:.3f}, ck={:.3f}".format(
+            n_examples, acc, mf1, ck
         )
+    )
+    print(cm)
 
-        valgen = AudioDataGenerator(
-
-            samplewise_center=True,
-            samplewise_std_normalization=True,
-        )
-
-        model.fit_generator(
-            datagen.flow(trainX, trainY, batch_size=params['batch_size'], shuffle=True, seed=params['random_seed']),
-            steps_per_epoch=len(trainX) // params['batch_size'],
-            epochs=params['epochs'],
-            validation_data=valgen.flow(valX, valY, batch_size=params['batch_size'],
-                                        seed=params['random_seed']),
-            callbacks=[modelcheckpnt, csv_logger, tensbd, lrate],
-            class_weight=params['class_weight']
-            )
-    except:
-        raise

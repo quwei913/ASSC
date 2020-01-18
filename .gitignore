@@ -10,3 +10,4 @@ data/*
 !data/*.py
 *.*~
 codes/__pycache__/*
+*.out

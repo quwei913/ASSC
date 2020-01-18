@@ -104,15 +104,15 @@ def patientSplitter(data, fold_idx):
     tr, te = train_test_split(int(fold_idx))
     print('train: ', tr)
     print('test: ', te)
-    trainMask = np.asarray([each in tr for each in data.iloc[:, 3002]])
-    testMask = np.asarray([each in tr for each in data.iloc[:, 3002]])
+    trainMask = np.asarray([each in tr for each in data[3002]])
+    testMask = np.asarray([each in tr for each in data[3002]])
 
     X_train = data[trainMask].values[:, :3000]
     X_test = data[testMask].values[:, :3000]
-    Y_train = data.iloc[:, 3000][trainMask].values
-    Y_test = data.iloc[:, 3000][testMask].values
-    pat_train = [int(each[2:5]) for each in data.iloc[:, 3002][trainMask].values]
-    pat_test = [int(each[2:5]) for each in data.iloc[:, 3002][testMask].values]
+    Y_train = data[3000][trainMask].values
+    Y_test = data[3000][testMask].values
+    pat_train = [int(each[2:5]) for each in data[3002][trainMask].values]
+    pat_test = [int(each[2:5]) for each in data[3002][testMask].values]
     return X_train, X_test, Y_train, Y_test, pat_train, pat_test
 
 
