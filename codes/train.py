@@ -51,18 +51,6 @@ if __name__ == '__main__':
         random_seed = 1
     num_class = 5
 
-    if args.loadmodel:  # If a previously trained model is loaded for retraining
-        load_path = args.loadmodel  #### path to model to be loaded
-
-        idx = load_path.find("weights")
-        initial_epoch = int(load_path[idx + 8:idx + 8 + 4])
-
-        print("%s model loaded\nInitial epoch is %d" % (args.loadmodel, initial_epoch))
-    else:
-        print("no model specified, using initializer to initialize weights")
-        initial_epoch = 0
-        load_path = False
-
     if args.epochs:  # if number of training epochs is specified
         print("Training for %d epochs" % (args.epochs))
         epochs = args.epochs
@@ -171,7 +159,7 @@ if __name__ == '__main__':
     ####### Callbacks #######
 
     modelcheckpnt = ModelCheckpoint(filepath=checkpoint_name,
-                                    monitor='val_acc', save_best_only=True, mode='max')
+                                    monitor='val_acc', save_best_only=False, mode='max')
 
     tensdir = log_dir + "/" + log_name + "/"
     tensbd = TensorBoard(log_dir=tensdir, batch_size=batch_size, write_grads=True, )
@@ -184,7 +172,6 @@ if __name__ == '__main__':
     try:
 
         datagen = AudioDataGenerator(
-            # shift=.1,
             roll_range=.15,
             samplewise_center=True,
             samplewise_std_normalization=True,
@@ -205,5 +192,6 @@ if __name__ == '__main__':
             callbacks=[modelcheckpnt, csv_logger, tensbd, lrate],
             class_weight=params['class_weight']
             )
+        model.save_weights(checkpoint_name)
     except:
         raise

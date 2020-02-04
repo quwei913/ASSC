@@ -105,7 +105,7 @@ def patientSplitter(data, fold_idx):
     print('train: ', tr)
     print('test: ', te)
     trainMask = np.asarray([each in tr for each in data[3002]])
-    testMask = np.asarray([each in tr for each in data[3002]])
+    testMask = np.asarray([each in te for each in data[3002]])
 
     X_train = data[trainMask].values[:, :3000]
     X_test = data[testMask].values[:, :3000]

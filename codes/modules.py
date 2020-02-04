@@ -149,7 +149,7 @@ def eegnet(eeg_length=3000, kernel_size=16, bias=False, maxnorm=4., **kwargs):
                use_bias=bias, kernel_constraint=max_norm(maxnorm))(EEG_input)  ##
     x = BatchNormalization(epsilon=eps, axis=-1)(x)
     x = Scale(axis=-1)(x)
-    x = Activation('relu')(x)  # ব্যাচ নরমালাইজ করা ভার্শন টা কে নিয়ে স্কেলের মধ্যে ঢুকানো 
+    x = Activation('relu')(x)  
 
     x = res_first(x, filters=[64, 64], kernel_size=kernel_size)
     x = res_subsam(x, filters=[64, 64], kernel_size=kernel_size, subsam=2)
